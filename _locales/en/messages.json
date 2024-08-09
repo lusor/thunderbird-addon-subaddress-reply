@@ -1,0 +1,5 @@
+{
+    "options.catchAllDesc": {
+        "message": "Handle catchAll domain instead of subaddresses"
+    }
+}

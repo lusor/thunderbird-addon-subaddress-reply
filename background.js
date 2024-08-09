@@ -37,11 +37,12 @@ async function extractRecipientMailAddresses(message) {
 }
 
 
-function detectSubaddress(identityMail, relatedRecipients) {
+function detectSubaddress(identityMail, relatedRecipients, catchAll) {
     const identityMailParts = identityMail.split('@');
     const identityMailUser = escapeRegExp(identityMailParts[0]);
     const identityMailDomain = escapeRegExp(identityMailParts[1]);
-    const subaddressRegex = new RegExp(identityMailUser + "[\-+].+@" + identityMailDomain, "i");
+    const prefix = catchAll === "on" ? "" : identityMailUser + "[\-+]"
+    const subaddressRegex = new RegExp(prefix + ".+@" + identityMailDomain, "i");
 
     return relatedRecipients.find((possibleSubaddress) => {
         return possibleSubaddress.match(subaddressRegex);
@@ -78,7 +79,8 @@ async function handleTabCreation(tab) {
         return;
     }
 
-    const matchingSubaddress = detectSubaddress(originalFrom.address, relatedRecipients);
+    const { catchAll } = await messenger.storage.local.get("catchAll");
+    const matchingSubaddress = detectSubaddress(originalFrom.address, relatedRecipients, catchAll);
     if (!matchingSubaddress) {
         return;
     }
